@@ -5,7 +5,8 @@ const eventSchema = mongoose.Schema({
   location: String,
   description: String,
   imageLink: String,
-  date: Date,
+  date: String,
+  time: String,
 });
 
 module.exports.Event = mongoose.model("Event", eventSchema);

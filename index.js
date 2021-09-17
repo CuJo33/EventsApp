@@ -31,16 +31,36 @@ app.use(cors());
 // adding morgan to log HTTP requests
 app.use(morgan("combined"));
 
+app.post("/user", async (req, res) => {
+  const newUser = new User(req.body);
+  const password = req.body.password;
+  const user = req.body.username;
+  const oldUser = await User.findOne({ username: req.body.username });
+  if (!oldUser) {
+    if (!user) {
+      return res.send({ status: 404, message: `Missing User` });
+    } else if (!password) {
+      return res.send({ status: 404, message: `Missing Password` });
+    }
+    user.token = uuidv4();
+    await newUser.save();
+    return res.send({
+      status: 200,
+      message: "Created User " + newUser.username,
+    });
+  } else {
+    return res.send({ status: 404, message: `User already exists` });
+  }
+});
+
 // creating auth
 app.post("/auth", async (req, res) => {
   const user = await User.findOne({ username: req.body.username });
   if (!user) {
-    return res.sendStatus(401);
+    return res.send({ status: 401, message: "Missing User" });
   }
-  console.log(user);
-  console.log(req.body.password);
   if (req.body.password !== user.password) {
-    return res.sendStatus(403);
+    return res.send({ status: 403, message: `Incorrect Password` });
   }
   user.token = uuidv4();
   await user.save();
@@ -67,6 +87,7 @@ app.get("/", async (req, res) => {
 app.post("/", async (req, res) => {
   const newEvent = req.body;
   const event = new Event(newEvent);
+  event.date = new Date(req.body.date).toISOString().slice(0, 10);
   await event.save();
   res.send({ message: "New Event Added" });
 });
@@ -79,7 +100,7 @@ app.delete("/:id", async (req, res) => {
 
 // find and update
 app.put("/:id", async (req, res) => {
-  await Event.findOneandUpdate({ _id: ObjectId(req.params.id) }, req.body);
+  await Event.findOneAndUpdate({ _id: ObjectId(req.params.id) }, req.body);
   res.send({ message: "Event updated" });
 });
 
