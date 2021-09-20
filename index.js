@@ -6,6 +6,7 @@ const helmet = require("helmet");
 const morgan = require("morgan");
 const { ObjectId } = require("mongodb");
 const mongoose = require("mongoose");
+const port = process.env.PORT || 3001;
 
 const { Event } = require("./models/event");
 const { User } = require("./models/user");
@@ -105,8 +106,8 @@ app.put("/:id", async (req, res) => {
 });
 
 // starting the server
-app.listen(3001, () => {
-  console.log("listening on port 3001");
+app.listen(port, () => {
+  console.log(`listening on  ${port}`);
 });
 
 var db = mongoose.connection;
